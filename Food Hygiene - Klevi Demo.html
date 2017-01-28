@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+	<head><meta charset="utf-8">
+		<script src="http://code.jquery.com/jquery-1.11.3.js"></script>
+		
+		<script type="text/javascript">				
+		
+				<!-- Fills in the table with the supplied information -->
+				function fillTable(data)
+				{
+					$("table")
+						.append(
+						"<tr>"+
+							"<th>Business</th>"+
+							"<th>Address</th>"+
+							"<th>Rating</th>"+
+							"<th>Date</th>"+
+						"</tr>");
+					
+					$.each( data, function(i, field)
+					{
+						$("table")
+							.append(							
+							"<tr>"+
+								"<td>"+
+									field.business +
+								"</td>"+
+
+								"<td>"+
+									field.address +
+								"</td>"+
+								
+								"<td>"+
+									field.rating +
+								"</td>"+
+								
+								"<td>"+
+									field.date +
+								"</td>"+
+							"</tr>");
+					});
+				}
+			
+		
+			$(document).ready(function()
+			{								
+
+				<!-- Allows time for the buttons to be generated then when a page button is selected the table becomes empty then reloaded with the data reflecting the current page -->
+				setTimeout( function() 
+				{
+					$("input:button").click(function()
+					{
+						$("table").empty();
+						
+						$.get("https://www.cs.kent.ac.uk/people/staff/lb514/hygiene/hygiene.php?op=retrieve&page="+
+							$(this).val(),
+						function(data)
+						{					
+							fillTable(data);
+						},"json");
+					});
+				}, 1000);
+				
+				
+				<!-- Cleares the table when a search is performed then searches for the business supplied through the search field upon button click, then fills the table with the data searched for. --> 
+				$("#searchButton").click(function()
+				{
+					$("table").empty();
+					
+					$.get("https://www.cs.kent.ac.uk/people/staff/lb514/hygiene/hygiene.php?op=searchname&name="+ 
+						$("#search").val(),
+					function(data)
+					{					
+						fillTable(data);
+					},"json");
+				});
+				
+				
+				<!-- Generates buttons dependant on the amount of pages exist --> 
+				$.get("https://www.cs.kent.ac.uk/people/staff/lb514/hygiene/hygiene.php?op=pages",
+				function(data)
+				{
+					$.each( data, function(i, field)
+					{
+						for( i = 1; i <= field; i++ )
+						{
+							$("#pages").append( "<input id='page' type='button' value=" + i + "></input>" );
+						}	
+					})
+				},"json");
+			
+				
+				<!-- Displays and loads the first page --> 
+				$.get("https://www.cs.kent.ac.uk/people/staff/lb514/hygiene/hygiene.php?op=retrieve&page=1",
+				function(data)
+				{
+					fillTable(data);
+				},"json");				
+				
+			});
+		</script>	
+		
+		<style>		
+		
+			table
+			{
+				border-collapse: collapse;
+			}
+			h1{
+			    text-align: center;
+			}
+			p {
+			 text-align: center;
+			}
+			td,th
+			{
+				border: 2px solid black;
+				text-align: left;
+				padding-right: 40px;
+				padding-left: 4px;
+				padding-top: 3px;
+				padding-bottom: 3px;
+			}
+			
+			#page
+			{
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<h1>Food Hygine Ratings</h1>
+		<p><i>The initial page will gather businesses from the first page from the server when it loads.
+				The page allows you to navigate through the database via the pages provided upon initial load.
+				As well as this a search from is located at the bottom of the page that will allow you to search
+                for specific businesses.<br>
+				<br>
+				</i>
+						
+		</p>
+		
+		<br>
+		
+			
+		
+		
+		<span><b>Pages: </b></span>
+		<div id="pages">
+		</div>
+		
+		<br>
+		
+		<table>
+		</table>
+		
+		<br><br>
+		<form>
+			<span><strong>Business Name: </strong></span>
+			<input type="text" id="search"></input>
+			<input type="button" id="searchButton" value="Search"></input>
+		</form>
+	
+		
+		<br><br>
+	</body>
+</html>
